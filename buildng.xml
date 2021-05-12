@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<project name="Running Testng.xml" default="clean" basedir=".">
+	<property name="ws.home" value="${basedir}"/>
+    <property name="build.dir" value="${basedir}/build"/>
+	<property name="bin.dir" value="${basedir}/bin"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="src.dir" value="${basedir}/src"/>
+    <target name="setClassPath">
+        <path id="classpath_jars">
+           
+            <fileset dir="${lib.dir}" includes="*.jar" />
+        	
+        </path>
+        <pathconvert pathsep=":" property="test.classpath" refid="classpath_jars" />
+    </target>
+    <target name="loadTestNG" depends="setClassPath">
+        <taskdef resource="testngtasks" classpath="${test.classpath}"/>
+    </target>
+    <target name="init">
+        <mkdir dir="${bin.dir}"/>
+        <tstamp>
+            <format property="timestamp" pattern="dd-MM-yyyy_(HH-mm-ss)"/>
+        </tstamp>
+        <property name="build.log.dir" location="${basedir}/buildlogs"/>
+        <mkdir dir="${build.log.dir}"/>
+        <property name="build.log.filename" value="build_${timestamp}.log"/>
+        <record name="${build.log.dir}/${build.log.filename}" loglevel="verbose" append="false"/>
+        <echo message="build logged to ${build.log.filename}"/>
+    </target>
+    <target name="clean">
+        <delete quiet="true" verbose="true">
+        	<fileset dir="${basedir}/res" includes="TestCasePart*.txt,validTestCases.txt"/>
+        </delete>
+    </target>
+    <target name="compile" depends="clean,init,setClassPath,loadTestNG">
+        <echo message="deleting existing build directory"/>
+        <delete dir="${bin.dir}"/>
+        <echo message="classpath:${test.classpath}"/>
+        <echo message="compiling.........."/>    	
+        <javac destdir="${bin.dir}" srcdir="${src.dir}" classpath="${test.classpath}" encoding="iso-8859-1" debug="true"/>
+     </target>
+	
+    <target name="createTestFile" depends="clean,init,setClassPath"> 
+    	<java classname="com.auto.pkg.util.TestCaseList">
+	   <classpath>
+	     <pathelement path="${test.classpath}:${build.dir}:${bin.dir}"/>
+	   </classpath>
+	</java>    	  
+    </target>	
+	
+	<!--<target name="runTests" depends="setClassPath,loadTestNG">-->
+    <target name="callTests" depends="init,setClassPath,loadTestNG"> 	
+	    <echo message="CLASSPATH=${test.classpath}:${build.dir}"/>
+        <testng classpath="${test.classpath}:${build.dir}:${bin.dir}">
+            <xmlfileset dir="${basedir}" includes="BuildtestNG.xml"/>
+        </testng>
+    </target>
+    
+    
+    <target name="genReport" depends="init,setClassPath"> 
+    	<java classname="com.auto.pkg.util.GenerateHTMLReport">
+	   <classpath>
+	     <pathelement path="${test.classpath}:${build.dir}:${bin.dir}"/>
+	   </classpath>
+	</java>    	  
+    </target>
+
+    <target name="sendMail">
+        <zip destfile="${basedir}/TestResults/Report.zip" basedir="${basedir}/TestResults" includes="*.html"/>
+        <mail mailhost="smtp.myOrg.com" mailport="25" subject="Notification of TESTNG build" ssl="false" >
+            <from address="admin@myorg.com"/>
+            <to address="recepient@myorg.com"/>
+            <message>
+			Hi
+				Test reports is attached.
+				Please check \\machine_name\AutomationFramework\TestResults location for detailed reports.
+				
+			Thanks
+			Pranab Nath
+			</message>
+            <attachments>
+                <fileset dir="TestResults">
+                    <include name="**/Report.zip"/>
+                </fileset>
+            </attachments>
+        </mail>
+    </target>
+    <target name="executeTests" depends="createTestFile,callTests,genReport,sendMail"/>
+    <!--<target name="executeTests" depends="createTestFile,callTests,genReport"/>
+    <target name="executeTests" depends="createTestFile"/>-->
+</project>

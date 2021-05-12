@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Suite1"  parallel="tests" thread-count="10">
+   <test name="exampletest1" >
+		<parameter name="testProp" value="TestCasePart1.txt"/> 
+		<classes>
+			<class name="com.auto.pkg.testcases.MainCall" />
+		</classes>
+    </test>
+
+     <test name="exampletest2" >
+		<parameter name="testProp" value="TestCasePart2.txt"/> 
+		<classes>
+			<class name="com.auto.pkg.testcases.MainCall" />
+		</classes>
+    </test>
+   
+	<test name="exampletest3" >
+		<parameter name="testProp" value="TestCasePart3.txt"/> 
+		<classes>
+			<class name="com.auto.pkg.testcases.MainCall" />
+		</classes>
+    </test>
+
+	<test name="exampletest4" >
+		<parameter name="testProp" value="TestCasePart4.txt"/> 
+		<classes>
+			<class name="com.auto.pkg.testcases.MainCall" />
+		</classes>
+    </test>
+<!--   	 
+	<test name="exampletest5" >
+		<parameter name="testProp" value="TestCasePart5.txt"/> 
+		<classes>
+			<class name="com.auto.pkg.testcases.MainCall" />
+		</classes>
+    </test>
+ -->
+  </suite>  	
+ 
